@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <style>
+    body {
+      background-color: #e0f6fe; /* 背景色 */
+    }
+  </style>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <script type="text/javascript" src="https://d3js.org/d3.v3.min.js"></script>
+  <script type="text/javascript" src="https://marvl.infotech.monash.edu/webcola/cola.v3.min.js"></script>
+</head>
+
+<body>
+  <script type="text/javascript">
+    // データセットの初期化
+    var dataset = {
+      nodes: [
+        { name: "香川 過疎化" },
+        { name: "地域振興策" },  // 二階層のノード
+        { name: "人口流出" },  // 二階層のノード
+        { name: "定住促進" },
+        { name: "農村過疎化" },
+        { name: "地域振興策" }
+      ],
+      edges: [
+        { source: 0, target: 1 },  // 一階層から二階層へのエッジ
+        { source: 0, target: 2 },  // 一階層から二階層へのエッジ
+        { source: 0, target: 3 },
+        { source: 0, target: 4 },
+        { source: 0, target: 5 }
+      ]
+    };
+
+    var width = 960,
+      height = 500;
+
+    // カラースケールの設定
+    var color = d3.scale.category10();
+// キーワードリスト
+var keywords = [
+      "過疎化",
+      "地域住民減少",
+      "人口減少",
+      "人口流出",
+      "定住促進",
+      "農村過疎化",
+      "地域振興策",
+      "地域再生",
+      "地方自治体",
+      "地域交流イベント",
+      "地域への情報発信",
+      "地域住民の連携",
+      "地域振興予算",
+      "地域への子育て支援",
+      "地域観光戦略",
+      "地域の歴史と文化",
+      "地域資金調達",
+      "地域住民の交流イベント",
+      "地域へのデジタルイノベーション",
+      "地域への若者支援",
+      "地域の自治体協力",
+      "地域への公共交通機関整備"
+    ];
+    
+    // 力学モデルの初期化
+    var force = d3.layout.force()
+      .nodes(dataset.nodes)
+      .links(dataset.edges)
+      .size([width, height])
+      .linkDistance(150) // リンクの距離を調整して重なりを防ぐ
+      .charge(-500) // 重なりを防ぐために荷電の強さを増やす
+      .on('end', function () {
+        update();
+      })
+      .start();
+
+    // SVG領域の作成
+    var svg = d3.select("body").append("svg")
+      .attr("width", width)
+      .attr("height", height);
+
+    // リンクを線として追加
+    var edges = svg.selectAll("line")
+      .data(dataset.edges)
+      .enter()
+      .append("line")
+      .style("stroke", "#ccc")
+      .style("stroke-width", 1);
+
+    // ノードを楕円として追加
+    var nodes = svg.selectAll("ellipse")
+      .data(dataset.nodes)
+      .enter()
+      .append("ellipse")
+      .attr("rx", 50) // 固定のx半径
+      .attr("ry", 30) // 固定のy半径
+      .style("fill", "white") // 塗りつぶし色を白に
+      .style("stroke", "black") // 枠の色を黒に
+      .style("stroke-width", 2) // 枠の幅を2ピクセルに
+      .call(force.drag)
+      .on('dblclick', addNode);
+
+    // ノードにテキストラベルを追加
+    var labels = svg.selectAll("text")
+      .data(dataset.nodes)
+      .enter()
+      .append("text")
+      .attr("dy", ".35em")
+      .style("text-anchor", "middle")
+      .text(function (d) {
+        return d.name;
+      });
+
+    // ビジュアライゼーションを更新する関数
+    function update() {
+      // ノードやエッジが変更されたときにビジュアライゼーションを更新
+      nodes = nodes.data(dataset.nodes);
+      nodes.enter().append("ellipse")
+        .attr("rx", 50)
+        .attr("ry", 30)
+        .style("fill", "white") // 塗りつぶし色を白に
+        .style("stroke", "black") // 枠の色を黒に
+        .style("stroke-width", 2) // 枠の幅を2ピクセルに
+        .call(force.drag)
+        .on('dblclick', addNode);
+
+      edges = edges.data(dataset.edges);
+      edges.enter().append("line")
+        .style("stroke", "#ccc")
+        .style("stroke-width", 1);
+
+      force.nodes(dataset.nodes).links(dataset.edges).start();
+
+      nodes.exit().remove();
+      edges.exit().remove();
+
+      labels = labels.data(dataset.nodes);
+      labels.enter().append("text")
+        .attr("dy", ".35em")
+        .style("text-anchor", "middle")
+        .text(function (d) {
+          return d.name;
+        });
+
+      labels.exit().remove();
+
+      // 各楕円内のテキストの配置を更新
+      labels.attr("x", function (d) {
+        return d.x;
+      })
+        .attr("y", function (d) {
+          return d.y;
+        })
+        .attr("transform", function (d) {
+          return "translate(0, " + -(d.ry + 5) + ")";
+        });
+    }
+
+    // ノードを追加する関数
+    function addNode(clickedNode) {
+      // クリックされたノードの内部に新しいノードを作成
+      var keywordIndex = dataset.nodes.length % keywords.length;
+      var newNode = { name: keywords[keywordIndex] };
+      dataset.nodes.push(newNode);
+      dataset.edges.push({ source: clickedNode.index, target: dataset.nodes.length - 1 });
+
+      update();
+    }
+
+    // 力学モデルの更新時の処理
+    force.on("tick", function () {
+      edges.attr("x1", function (d) {
+        return d.source.x;
+      })
+        .attr("y1", function (d) {
+          return d.source.y;
+        })
+        .attr("x2", function (d) {
+          return d.target.x;
+        })
+        .attr("y2", function (d) {
+          return d.target.y;
+        });
+
+      nodes.attr("cx", function (d) {
+        return d.x;
+      })
+        .attr("cy", function (d) {
+          return d.y;
+        });
+
+      labels.attr("x", function (d) {
+        return d.x;
+      })
+        .attr("y", function (d) {
+          return d.y;
+        })
+        .attr("transform", function (d) {
+          return "translate(0, " + -(d.ry + 5) + ")";
+        });
+    });
+  </script>
+</body>
+
+</html>

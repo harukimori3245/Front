@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <script type="text/javascript" src="https://d3js.org/d3.v3.min.js"></script>
+  <script type="text/javascript" src="https://marvl.infotech.monash.edu/webcola/cola.v3.min.js"></script>
+</head>
+
+<body>
+  <script type="text/javascript">
+    // Initial dataset with a single node
+    var dataset = {
+      nodes: [
+        { name: "Click me" }
+      ],
+      edges: []
+    };
+
+    var width = 960,
+      height = 500;
+
+    var color = d3.scale.category10();
+
+    var force = d3.layout.force()
+      .nodes(dataset.nodes)
+      .links(dataset.edges)
+      .size([width, height])
+      .linkDistance(150)
+      .charge(-500)
+      .on('end', function () {
+        update();
+      })
+      .start();
+
+    var svg = d3.select("body").append("svg")
+      .attr("width", width)
+      .attr("height", height);
+
+    var edges = svg.selectAll("line")
+      .data(dataset.edges)
+      .enter()
+      .append("line")
+      .style("stroke", "#ccc")
+      .style("stroke-width", 1);
+
+    var nodes = svg.selectAll("circle")
+      .data(dataset.nodes)
+      .enter()
+      .append("circle")
+      .attr("r", function (d) {
+        return Math.max(d.name.length * 5, 20);
+      })
+      .style("fill", function (d, i) {
+        return color(i);
+      })
+      .call(force.drag)
+      .on('dblclick', addNode);
+
+    var labels = svg.selectAll("text")
+      .data(dataset.nodes)
+      .enter()
+      .append("text")
+      .attr("dy", ".35em")
+      .style("text-anchor", "middle")
+      .text(function (d) {
+        return d.name;
+      });
+
+    function addNode(clickedNode) {
+      // In a real application, replace this with your scraped data
+      var scrapedData = [
+        { name: "Scraped Node 1" },
+        { name: "Scraped Node 2" },
+        // ... Add more scraped nodes as needed
+      ];
+
+      // Add scraped nodes to the dataset
+      for (var i = 0; i < scrapedData.length; i++) {
+        dataset.nodes.push(scrapedData[i]);
+        dataset.edges.push({ source: clickedNode.index, target: dataset.nodes.length - 1 });
+      }
+
+      update();
+    }
+
+    function update() {
+      nodes = nodes.data(dataset.nodes);
+      nodes.enter().append("circle")
+        .attr("r", function (d) {
+          return Math.max(d.name.length * 5, 20);
+        })
+        .style("fill", function (d, i) {
+          return color(i);
+        })
+        .call(force.drag)
+        .on('dblclick', addNode);
+
+      edges = edges.data(dataset.edges);
+      edges.enter().append("line")
+        .style("stroke", "#ccc")
+        .style("stroke-width", 1);
+
+      force.nodes(dataset.nodes).links(dataset.edges).start();
+
+      nodes.exit().remove();
+      edges.exit().remove();
+
+      labels = labels.data(dataset.nodes);
+      labels.enter().append("text")
+        .attr("dy", ".35em")
+        .style("text-anchor", "middle")
+        .text(function (d) {
+          return d.name;
+        });
+
+      labels.exit().remove();
+    }
+
+    force.on("tick", function () {
+      edges.attr("x1", function (d) {
+        return d.source.x;
+      })
+        .attr("y1", function (d) {
+          return d.source.y;
+        })
+        .attr("x2", function (d) {
+          return d.target.x;
+        })
+        .attr("y2", function (d) {
+          return d.target.y;
+        });
+
+      nodes.attr("cx", function (d) {
+        return d.x;
+      })
+        .attr("cy", function (d) {
+          return d.y;
+        });
+
+      labels.attr("x", function (d) {
+        return d.x;
+      })
+        .attr("y", function (d) {
+          return d.y;
+        });
+    });
+  </script>
+</body>
+
+</html>

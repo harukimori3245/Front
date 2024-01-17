@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Server Properties Editor</title>
+</head>
+<body>
+
+  <h2>Server Properties Editor</h2>
+
+  <label for="newMotdInput">New MOTD:</label>
+  <input type="text" id="newMotdInput" placeholder="Enter new MOTD">
+  <button onclick="updateMotd()">Update MOTD</button>
+
+  <script>
+    function updateMotd() {
+      const newMotd = document.getElementById('newMotdInput').value;
+
+      // サーバープロパティを変更するAPIエンドポイントにリクエストを送信
+      fetch('/update-server-property', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ property: 'motd', value: newMotd })
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Server response:', data);
+        alert('MOTD updated successfully!');
+      })
+      .catch(error => {
+        console.error('Error updating MOTD:', error);
+        alert('Error updating MOTD. Please try again.');
+      });
+    }
+  </script>
+
+</body>
+</html>

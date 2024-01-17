@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<!-- saved from url=(0044)https://midoriit.com/html/tokyo23/index.html -->
+<html>
+
+<head>
+    <style>body {
+        background-color: #FDFDF8;   /* Cream color */
+      }
+    </style>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <script type="text/javascript" src="https://d3js.org/d3.v3.min.js"></script>
+  <script type="text/javascript" src="https://marvl.infotech.monash.edu/webcola/cola.v3.min.js"></script>
+</head>
+
+<body>
+  <script type="text/javascript">
+    var dataset = {
+      nodes: [
+        { name: "Click me" }
+      ],
+      edges: []
+    };
+
+    var width = 960,
+      height = 500;
+
+    var color = d3.scale.category10();
+
+    var keywords = [
+      "過疎化",
+      "地域住民減少",
+      "人口減少",
+      "人口流出",
+      "地域への定住促進",
+      "農村過疎化",
+      "地域振興策",
+      "地域再生",
+      "地方自治体",
+      "地域交流イベント",
+      "地域資源の有効活用",
+      "地域への情報発信",
+      "地域住民の連携",
+      "地域振興予算",
+      "地域への子育て支援",
+      "地域観光戦略",
+      "地域の歴史と文化",
+      "地域資金調達",
+      "地域住民の交流イベント",
+      "地域へのデジタルイノベーション",
+      "地域への若者支援",
+      "地域の自治体協力",
+      "地域への公共交通機関整備"
+    ];
+
+    var force = d3.layout.force()
+      .nodes(dataset.nodes)
+      .links(dataset.edges)
+      .size([width, height])
+      .linkDistance(150) // Adjust link distance to prevent overlapping
+      .charge(-500) // Increase charge strength to prevent overlapping
+      .on('end', function () {
+        update();
+      })
+      .start();
+
+    var svg = d3.select("body").append("svg")
+      .attr("width", width)
+      .attr("height", height);
+
+    // Add edges as lines
+    var edges = svg.selectAll("line")
+      .data(dataset.edges)
+      .enter()
+      .append("line")
+      .style("stroke", "#ccc")
+      .style("stroke-width", 1);
+
+    // Add nodes as circles
+    var nodes = svg.selectAll("circle")
+      .data(dataset.nodes)
+      .enter()
+      .append("circle")
+      .attr("r", function (d) {
+        // Set the radius based on the length of the text with a minimum size
+        return Math.max(d.name.length * 5, 20); // Adjust 20 as needed
+      })
+      .style("fill", function (d, i) {
+        return color(i);
+      })
+      .call(force.drag)
+      .on('dblclick', addNode);
+
+    // Add labels as text within each node
+    var labels = svg.selectAll("text")
+      .data(dataset.nodes)
+      .enter()
+      .append("text")
+      .attr("dy", ".35em")
+      .style("text-anchor", "middle")
+      .text(function (d) {
+        return d.name;
+      });
+
+    function addNode(clickedNode) {
+      // Create a new node inside the clicked node
+      var keywordIndex = dataset.nodes.length % keywords.length;
+      var newNode = { name: keywords[keywordIndex] };
+      dataset.nodes.push(newNode);
+      dataset.edges.push({ source: clickedNode.index, target: dataset.nodes.length - 1 });
+
+      update();
+    }
+
+    function update() {
+      // Update the visualization when nodes or edges change
+      nodes = nodes.data(dataset.nodes);
+      nodes.enter().append("circle")
+        .attr("r", function (d) {
+          return Math.max(d.name.length * 5, 20);
+        })
+        .style("fill", function (d, i) {
+          return color(i);
+        })
+        .call(force.drag)
+        .on('dblclick', addNode);
+
+      edges = edges.data(dataset.edges);
+      edges.enter().append("line")
+        .style("stroke", "#ccc")
+        .style("stroke-width", 1);
+
+      force.nodes(dataset.nodes).links(dataset.edges).start();
+
+      nodes.exit().remove();
+      edges.exit().remove();
+
+      labels = labels.data(dataset.nodes);
+      labels.enter().append("text")
+        .attr("dy", ".35em")
+        .style("text-anchor", "middle")
+        .text(function (d) {
+          return d.name;
+        });
+
+      labels.exit().remove();
+    }
+
+    force.on("tick", function () {
+      edges.attr("x1", function (d) {
+        return d.source.x;
+      })
+        .attr("y1", function (d) {
+          return d.source.y;
+        })
+        .attr("x2", function (d) {
+          return d.target.x;
+        })
+        .attr("y2", function (d) {
+          return d.target.y;
+        });
+
+      nodes.attr("cx", function (d) {
+        return d.x;
+      })
+        .attr("cy", function (d) {
+          return d.y;
+        });
+
+      labels.attr("x", function (d) {
+        return d.x;
+      })
+        .attr("y", function (d) {
+          return d.y;
+        });
+    });
+  </script>
+</body>
+
+</html>

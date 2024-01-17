@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<!-- saved from url=(0044)https://midoriit.com/html/tokyo23/index.html -->
+<html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <script type="text/javascript" src="https://d3js.org/d3.v3.min.js"></script>
+  <script type="text/javascript" src="https://marvl.infotech.monash.edu/webcola/cola.v3.min.js"></script>
+</head>
+
+<body>
+  <script type="text/javascript">
+    var dataset = {
+      nodes: [
+      { name : "過疎化" },
+    { name : "地域住民減少" },
+    { name : "人口減少" },
+    { name : "人口流出" },
+    { name : "地域への定住促進" },
+    { name : "農村過疎化" },
+    { name : "地域振興策" },
+    { name : "地域再生" }
+        // ... (rest of your nodes)
+      ],
+      edges: []
+    };
+
+    // Create edges for all combinations of nodes
+    for (var i = 0; i < dataset.nodes.length; i++) {
+      for (var j = i + 1; j < dataset.nodes.length; j++) {
+        dataset.edges.push({ source: i, target: j });
+      }
+    }
+
+    var width = 960,
+      height = 500;
+
+    var color = d3.scale.category10();
+
+    var force = d3.layout.force()
+      .nodes(dataset.nodes)
+      .links(dataset.edges)
+      .size([width, height])
+      .linkDistance(100) // Adjust link distance as needed
+      .charge(-200) // Adjust charge strength to prevent overlapping
+      .start();
+
+    var svg = d3.select("body").append("svg")
+      .attr("width", width)
+      .attr("height", height);
+
+    // Add edges as lines
+    var edges = svg.selectAll("line")
+      .data(dataset.edges)
+      .enter()
+      .append("line")
+      .style("stroke", "#ccc")
+      .style("stroke-width", 1);
+
+    // Add nodes as circles
+    var nodes = svg.selectAll("circle")
+      .data(dataset.nodes)
+      .enter()
+      .append("circle")
+      .attr("r", function (d) {
+        // Set the radius based on the length of the text with a minimum size
+        return Math.max(d.name.length * 5, 20); // Adjust 20 as needed
+      })
+      .style("fill", function (d, i) {
+        return color(i);
+      })
+      .call(force.drag);
+
+    // Add labels as text within each node
+    var labels = svg.selectAll("text")
+      .data(dataset.nodes)
+      .enter()
+      .append("text")
+      .attr("dy", ".35em")
+      .style("text-anchor", "middle")
+      .text(function (d) {
+        return d.name;
+      });
+
+    force.on("tick", function () {
+      edges.attr("x1", function (d) {
+          return d.source.x;
+        })
+        .attr("y1", function (d) {
+          return d.source.y;
+        })
+        .attr("x2", function (d) {
+          return d.target.x;
+        })
+        .attr("y2", function (d) {
+          return d.target.y;
+        });
+
+      nodes.attr("cx", function (d) {
+        return d.x;
+      })
+        .attr("cy", function (d) {
+          return d.y;
+        });
+
+      labels.attr("x", function (d) {
+        return d.x;
+      })
+        .attr("y", function (d) {
+          return d.y;
+        });
+    });
+  </script>
+</body>
+
+</html>

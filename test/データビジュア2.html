@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<!-- saved from url=(0044)https://midoriit.com/html/tokyo23/index.html -->
+<html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <script type="text/javascript" src="https://d3js.org/d3.v3.min.js"></script>
+  <script type="text/javascript" src="https://marvl.infotech.monash.edu/webcola/cola.v3.min.js"></script>
+</head>
+
+<body>
+  <script type="text/javascript">
+    var dataset = {
+      nodes: [
+        { name: "過疎化" },
+        { name: "地域住民減少" },
+        { name: "人口減少" },
+        { name: "人口流出" },
+        { name: "地域への定住促進" },
+        { name: "農村過疎化" },
+        { name: "地域振興策" },
+        { name: "地域再生" },
+        { name: "地方自治体" },
+        { name: "地域交流イベント" },
+        { name: "地域資源の有効活用" },
+        { name: "地域への情報発信" },
+        { name: "地域住民の連携" },
+        { name: "地域振興予算" },
+        { name: "地域への子育て支援" },
+        { name: "地域観光戦略" },
+        { name: "地域の歴史と文化" },
+        { name: "地域資金調達" },
+        { name: "地域住民の交流イベント" },
+        { name: "地域へのデジタルイノベーション" },
+        { name: "地域への若者支援" },
+        { name: "地域の自治体協力" },
+        { name: "地域への公共交通機関整備" }
+      ],
+      edges: [
+        { source: 0, target: 1 },
+        { source: 0, target: 2 },
+        { source: 0, target: 3 },
+        { source: 0, target: 4 },
+        { source: 0, target: 5 },
+        { source: 1, target: 2 },
+        { source: 1, target: 5 },
+        { source: 1, target: 6 },
+        { source: 1, target: 7 },
+        { source: 2, target: 3 },
+        { source: 2, target: 7 },
+        { source: 2, target: 8 },
+        { source: 2, target: 12 },
+        { source: 3, target: 4 },
+        { source: 3, target: 12 },
+        { source: 3, target: 13 },
+        { source: 3, target: 15 },
+        { source: 4, target: 5 },
+        { source: 4, target: 15 },
+        { source: 4, target: 16 },
+        { source: 4, target: 17 },
+        { source: 5, target: 6 },
+        { source: 5, target: 17 },
+        { source: 6, target: 7 },
+        { source: 6, target: 17 },
+        { source: 6, target: 20 },
+        { source: 6, target: 21 },
+        { source: 6, target: 22 },
+        { source: 7, target: 8 },
+        { source: 7, target: 10 },
+        { source: 7, target: 22 },
+        { source: 8, target: 9 },
+        { source: 8, target: 10 },
+        { source: 8, target: 12 },
+        { source: 9, target: 10 },
+        { source: 9, target: 11 },
+        { source: 9, target: 12 },
+        { source: 10, target: 11 },
+        { source: 11, target: 12 },
+        { source: 11, target: 14 },
+        { source: 12, target: 13 },
+        { source: 12, target: 14 },
+        { source: 13, target: 14 },
+        { source: 13, target: 15 },
+        { source: 13, target: 19 },
+        { source: 14, target: 19 },
+        { source: 15, target: 16 },
+        { source: 15, target: 19 },
+        { source: 15, target: 20 },
+        { source: 16, target: 17 },
+        { source: 16, target: 18 },
+        { source: 16, target: 20 },
+        { source: 17, target: 18 },
+        { source: 17, target: 20 },
+        { source: 17, target: 21 },
+        { source: 18, target: 19 },
+        { source: 18, target: 21 },
+        { source: 19, target: 20 },
+        { source: 19, target: 22 },
+        { source: 20, target: 21 },
+        { source: 21, target: 22 }
+      ]
+    };
+
+    var width = 960,
+      height = 500;
+
+    var color = d3.scale.category10();
+
+    var force = d3.layout.force()
+      .nodes(dataset.nodes)
+      .links(dataset.edges)
+      .size([width, height])
+      .linkDistance(50)
+      .charge([-100])
+      .start();
+
+    var svg = d3.select("body").append("svg")
+      .attr("width", width)
+      .attr("height", height);
+
+    var edges = svg.selectAll("line")
+      .data(dataset.edges)
+      .enter()
+      .append("line")
+      .style("stroke", "#ccc")
+      .style("stroke-width", 1);
+
+    var nodes = svg.selectAll("circle")
+      .data(dataset.nodes)
+      .enter()
+      .append("circle")
+      .attr("r", 10)
+      .style("fill", function (d, i) {
+        return color(i);
+      })
+      .call(force.drag);
+
+    var labels = svg.selectAll("text")
+      .data(dataset.nodes)
+      .enter()
+      .append("text")
+      .attr("dy", ".35em")
+      .style("text-anchor", "middle")
+      .text(function (d) {
+        return d.name;
+      });
+
+    force.on("tick", function () {
+      edges.attr("x1", function (d) {
+        return d.source.x;
+      })
+        .attr("y1", function (d) {
+          return d.source.y;
+        })
+        .attr("x2", function (d) {
+          return d.target.x;
+        })
+        .attr("y2", function (d) {
+          return d.target.y;
+        });
+
+      nodes.attr("cx", function (d) {
+        return d.x;
+      })
+        .attr("cy", function (d) {
+          return d.y;
+        });
+
+      labels.attr("x", function (d) {
+        return d.x;
+      })
+        .attr("y", function (d) {
+          return d.y;
+        });
+    });
+  </script>
+</body>
+
+</html>

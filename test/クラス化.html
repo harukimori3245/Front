@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Class Example</title>
+</head>
+<body>
+
+<!-- 名前を表示するための要素 -->
+<div id="output"></div>
+
+<script>
+  // Personクラスの定義
+  class Person {
+    constructor(firstName, lastName) {
+      this.firstName = firstName;
+      this.lastName = lastName;
+    }
+
+    // フルネームを取得するメソッド
+    getFullName() {
+      return `${this.firstName} ${this.lastName}`;
+    }
+  }
+
+  // Personクラスのインスタンスを生成
+  const person1 = new Person("テスト", "Doe");
+  const person2 = new Person("テスト", "Doe");
+
+  // フルネームをHTMLに表示
+  document.getElementById("output").innerHTML = `
+    <p>${person1.getFullName()}</p>
+    <p>${person2.getFullName()}</p>
+  `;
+</script>
+
+</body>
+</html>
